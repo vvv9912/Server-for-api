@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"html/template"
 	"io"
+	"path"
 	"serverBot2/internal/api"
 	"serverBot2/internal/handler"
 )
@@ -47,10 +48,10 @@ func NewServer(storager api.Storager) *Server {
 
 	templates := make(map[string]*template.Template)
 
-	templates["auth.html"] = template.Must(template.ParseFiles("internal/templates/auth.html", "internal/templates/base.html"))
-	templates["auth2.html"] = template.Must(template.ParseFiles("internal/templates/auth2.html", "internal/templates/base.html"))
-	templates["auth3.html"] = template.Must(template.ParseFiles("internal/templates/auth3.html", "internal/templates/base.html"))
-	templates["bd.html"] = template.Must(template.ParseFiles("internal/templates/bd.html", "internal/templates/base.html"))
+	templates["auth.html"] = template.Must(template.ParseFiles(path.Join("static", "templates", "auth.html"), path.Join("static", "templates", "base.html")))
+	templates["auth2.html"] = template.Must(template.ParseFiles(path.Join("static", "templates", "auth2.html"), path.Join("static", "templates", "base.html")))
+	templates["auth3.html"] = template.Must(template.ParseFiles(path.Join("static", "templates", "auth3.html"), path.Join("static", "templates", "base.html")))
+	templates["bd.html"] = template.Must(template.ParseFiles(path.Join("static", "templates", "bd.html"), path.Join("static", "templates", "base.html")))
 
 	s.echo.Renderer = &TemplateRegistry{templates: templates}
 
