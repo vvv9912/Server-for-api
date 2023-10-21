@@ -66,8 +66,8 @@ func NewServer(storager api.Storager) *Server {
 	return s
 }
 
-func (s *Server) ServerStart(ctx context.Context) error {
+func (s *Server) ServerStart(ctx context.Context, addr string) error {
 	//err := s.echo.Start("172.17.0.2:8080")
-	err := s.echo.Start("localhost:8080")
+	err := s.echo.Start(addr)
 	return err
 }
