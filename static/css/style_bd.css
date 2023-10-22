@@ -13,6 +13,11 @@
 /*    overflow-y: scroll; !* Разрешите вертикальную прокрутку *!*/
 /*    !* Другие стили по вашему выбору *!*/
 /*}*/
+#tableContainer{
+    height: auto;
+    width: auto;
+    overflow: auto;
+}
 
 #editableTable {
     overflow-y: scroll;

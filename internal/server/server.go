@@ -32,18 +32,7 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 func NewServer(storager api.Storager) *Server {
 	s := &Server{echo: echo.New()}
 	s.echo.Static("/static", "static")
-	//db, err := sqlx.Connect("postgres", "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
-	//defer db.Close()
-	//if err != nil {
-	//	fmt.Println(db)
-	//	return nil
-	//}
-	//sProducts := storage.NewProductsPostgresStorage(db)
-	//a, err := sProducts.SelectAllProducts(context.TODO())
-	//if err != nil {
-	//	fmt.Println(db)
-	//	return nil
-	//}
+
 	get := api.GetDB{Storage: storager}
 
 	templates := make(map[string]*template.Template)
@@ -68,6 +57,8 @@ func NewServer(storager api.Storager) *Server {
 
 func (s *Server) ServerStart(ctx context.Context, addr string) error {
 	//err := s.echo.Start("172.17.0.2:8080")
+
 	err := s.echo.Start(addr)
+	defer s.echo.Close()
 	return err
 }

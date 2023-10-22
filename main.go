@@ -23,6 +23,7 @@ func main() {
 
 	s := server.NewServer(sProducts)
 	ctx := context.Background()
+
 	serverAddr := config.Get().ServerAddress
 	err = s.ServerStart(ctx, serverAddr)
 	if err != nil {
