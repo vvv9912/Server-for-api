@@ -21,7 +21,7 @@ func main() {
 
 	sProducts := storage.NewProductsPostgresStorage(db)
 
-	s := server.NewServer(sProducts)
+	s := server.NewServer(sProducts, sProducts)
 	ctx := context.Background()
 
 	serverAddr := config.Get().ServerAddress

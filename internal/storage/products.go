@@ -43,7 +43,34 @@ func (s *ProductsPostgresStorage) AddProduct(ctx context.Context, product model.
 
 	return nil
 }
+func (s *ProductsPostgresStorage) ChangeProductByArticle(ctx context.Context, product model.Products) error {
+	conn, err := s.db.Connx(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
 
+	if _, err := conn.ExecContext(
+		ctx,
+		`UPDATE products SET catalog = $2, name = $3, description = $4, photo_url = $5, price = $6, length = $7, width = $8, heigth = $9, weight = $10
+	    				WHERE article = $1`,
+		product.Article,
+		product.Catalog,
+		product.Name,
+		product.Description,
+		pq.Array(product.PhotoUrl),
+		product.Price,
+		product.Length,
+		product.Width,
+		product.Height,
+		product.Weight,
+		//users.CreatedAt,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
 func (s *ProductsPostgresStorage) Catalog(ctx context.Context) ([]string, error) {
 
 	conn, err := s.db.Connx(ctx)
@@ -79,7 +106,8 @@ func (s *ProductsPostgresStorage) SelectAllProducts(ctx context.Context) ([]mode
      width  AS a_width,
      heigth  AS a_height,
      weight  AS a_weight
-	 FROM products`,
+	 FROM products
+	 ORDER BY article asc;`,
 	); err != nil {
 		return nil, err
 	}

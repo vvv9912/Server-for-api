@@ -29,7 +29,7 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 	return tmpl.ExecuteTemplate(w, "base.html", data)
 }
 
-func NewServer(storager api.Storager) *Server {
+func NewServer(storager api.Storager, storagerr api.PostStorager) *Server {
 	s := &Server{echo: echo.New()}
 	s.echo.Static("/static", "static")
 
@@ -52,6 +52,9 @@ func NewServer(storager api.Storager) *Server {
 	s.echo.POST("/api/post-auth", api.PostAuth)
 	s.echo.GET("/api/get-data-db", get.GetDataDb)
 	s.echo.GET("/api/get-data", api.GetData)
+
+	post := api.PostDB{Storage: storagerr}
+	s.echo.POST("/api/save-change-bd", post.PostChangeBD)
 	return s
 }
 

@@ -78,8 +78,7 @@
 
       articleCell.innerHTML = item.article;
       catalogCell.innerHTML = `<input type='text' value='${item.catalog}' oninput='enableSaveButton(this)'/>`;
-      nameCell.innerHTML = `<input type='text' value='${item.name}' oninput='enableSaveButton(this)'/>`;
-      descriptionCell.innerHTML = `<input type='text' value='${item.description}' oninput='enableSaveButton(this)'/>`
+
       //photoUrlCell.innerHTML = `<img src="data:image/jpeg;base64, ${item.photo_url}" alt="Image" style="max-width: 100px; max-height: 100px;" />`;
 
 
@@ -104,6 +103,7 @@
           inputElement.addEventListener('change', function() {
             console.log('file input changed');
             handlePhotoChange(this, item, index);
+            enableSaveButtonForImage(this); // Добавляем вызов enableSaveButton
           });
 
           const buttonElement = document.createElement('button');
@@ -125,8 +125,27 @@
       heightCell.innerHTML = `<input type='text' value='${item.height}' oninput='enableSaveButton(this)'/>`;
       weightCell.innerHTML = `<input type='text' value='${item.weight}' oninput='enableSaveButton(this)'/>`;
 //value='${item.catalog} тут как в json
-      nameCell.innerHTML = `<div contenteditable="true">${item.name}</div>`;
-      descriptionCell.innerHTML = `<div contenteditable="true">${item.description}</div>`;
+      //Добавляем поля name, descrip
+      const nameContentEditable = document.createElement('div');
+      const descriptionContentEditable = document.createElement('div');
+      // Make them content editable
+      nameContentEditable.setAttribute('contenteditable', true);
+      descriptionContentEditable.setAttribute('contenteditable', true);
+      // Add data
+      nameContentEditable.textContent = item.name;
+      descriptionContentEditable.textContent = item.description;
+
+      nameContentEditable.addEventListener('input', function() {
+        enableSaveButton(this);
+      });
+
+      descriptionContentEditable.addEventListener('input', function() {
+        enableSaveButton(this);
+      });
+
+      // Set their outer HTML as innerHTML of the cells
+      nameCell.appendChild(nameContentEditable);
+      descriptionCell.appendChild(descriptionContentEditable);
 
       const saveButton = document.createElement('button');
       saveButton.textContent = 'Сохранить';
@@ -136,6 +155,20 @@
       saveButton.disabled = true;
       actionCell.appendChild(saveButton);
     });
+  }
+  function enableSaveButton(input) {
+    const row = input.parentNode.parentNode;
+    modifiedRows.add(row); // Добавить строку в множество измененных строк
+    const saveButtonCell = row.cells[10];
+    const saveButton = saveButtonCell.querySelector('button');
+    saveButton.disabled = false;
+  }
+  function enableSaveButtonForImage(input) {
+    const row = input.parentNode.parentNode.parentNode;
+    modifiedRows.add(row); // Добавить строку в множество измененных строк
+    const saveButtonCell = row.cells[10];
+    const saveButton = saveButtonCell.querySelector('button');
+    saveButton.disabled = false;
   }
   function handlePhotoChange(input, item, imageIndex) {
     const file = input.files[0];
@@ -165,27 +198,42 @@
     reader.readAsDataURL(file);
   }
 
-  function enableSaveButton(input) {
-    const row = input.parentNode.parentNode;
-    modifiedRows.add(row); // Добавить строку в множество измененных строк
-    const saveButtonCell = row.cells[10];
-    const saveButton = saveButtonCell.querySelector('button');
-    saveButton.disabled = false;
-  }
+
 
   function saveRow(button) {
     const row = button.parentNode.parentNode;
     console.log(row)
-    const id = row.cells[0].innerHTML;
+    const articleCell = row.cells[0].innerHTML;
     // const id = row.cells[0].getElementsByTagName('input')[0].value;
-    const email = row.cells[1].getElementsByTagName('input')[0].value;
-    const password = row.cells[2].innerText;
+    const catalogCell = row.cells[1].getElementsByTagName('input')[0].value;
+    const nameCell = row.cells[2].innerText;
+    const descriptionCell = row.cells[3].innerText;
+    //photo
+    const photoCell = row.cells[4].getElementsByTagName('img');
+    let photos = [];
+    for(let i = 0; i < photoCell.length; i++){
+      photos.push(photoCell[i].src); // собираем все URL-ы картинок в массив
+    }
+    //
+    const priceCell = row.cells[5].getElementsByTagName('input')[0].value;
+    const lengthCell = row.cells[6].getElementsByTagName('input')[0].value;
+    const widthCell = row.cells[7].getElementsByTagName('input')[0].value;
+    const heightCell = row.cells[8].getElementsByTagName('input')[0].value;
+    const weightCell = row.cells[9].getElementsByTagName('input')[0].value;
+
+
 
     // Обновить данные в массиве data
-    const recordIndex = parseInt(id) - 1;
-    data[recordIndex].email = email;
-    data[recordIndex].password = password;
-
+    const recordIndex = parseInt(articleCell) - 1;
+    data[recordIndex].catalog = catalogCell;
+    data[recordIndex].name = nameCell;
+    data[recordIndex].description = descriptionCell;
+    data[recordIndex].photo = photos; // обновляем поле photo
+    data[recordIndex].price = priceCell;
+    data[recordIndex].length = lengthCell;
+    data[recordIndex].width = widthCell;
+    data[recordIndex].height = heightCell;
+    data[recordIndex].weight = weightCell;
     // Удалить строку из множества измененных строк
     //  modifiedRows.delete(row);
     // Отключить кнопку "Сохранить" после сохранения изменений
@@ -224,7 +272,7 @@
     const passwordCell = newRow.insertCell(2);
     const actionCell = newRow.insertCell(3);
     len = data.length
-    idCell.innerHTML = (len+1).toString();// Можно оставить пустым или сгенерировать уникальный ID
+    idCell.innerHTML = (len).toString();// Можно оставить пустым или сгенерировать уникальный ID
     // idCell.innerHTML = '4'; // Можно оставить пустым или сгенерировать уникальный ID
     // idCell.innerHTML = "<input type='text' />"; // Редактируем ID
     emailCell.innerHTML = "<input type='text' />";
@@ -232,19 +280,33 @@
     actionCell.innerHTML = "<button onclick='saveRow2(this)'>Сохранить</button>";
   }
   function saveChanges() {
+    console.log('модифицированные данные:', modifiedRows)
     const changedData = Array.from(modifiedRows).map(row => {
       console.log(row);
-      const id = row.cells[0].innerHTML;
-      const email = row.cells[1].getElementsByTagName('input')[0].value;
-      const password = row.cells[2].getElementsByTagName('input')[0].value;
-      return { id, email, password };
-    });
+      const article = parseInt(row.cells[0].innerHTML);
+      const catalog = row.cells[1].getElementsByTagName('input')[0].value;
+      const name = row.cells[2].innerText;
+      const description = row.cells[3].innerText;
+      const photoCell = row.cells[4].getElementsByTagName('img');
+      let photo_url = [];
+      for(let i = 0; i < photoCell.length; i++){
+        photo_url.push(photoCell[i].src); // собираем все URL-ы картинок в массив
+      }
 
+      //
+      const price = parseFloat(row.cells[5].getElementsByTagName('input')[0].value);
+      const length = parseInt(row.cells[6].getElementsByTagName('input')[0].value);
+      const width = parseInt(row.cells[7].getElementsByTagName('input')[0].value);
+      const height = parseInt(row.cells[8].getElementsByTagName('input')[0].value);
+      const weight = parseInt(row.cells[9].getElementsByTagName('input')[0].value);
+
+      return { article, catalog, name, description, photo_url,price,length,width,height,weight};
+    });
     // Вывести данные в консоль
     console.log('Данные, отправляемые в POST-запросе:', changedData);
 
     // Выполнить POST-запрос только с измененными данными
-    fetch('/save-data', {
+    fetch('/api/save-change-bd', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
