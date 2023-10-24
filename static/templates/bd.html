@@ -79,9 +79,6 @@
       articleCell.innerHTML = item.article;
       catalogCell.innerHTML = `<input type='text' value='${item.catalog}' oninput='enableSaveButton(this)'/>`;
 
-      //photoUrlCell.innerHTML = `<img src="data:image/jpeg;base64, ${item.photo_url}" alt="Image" style="max-width: 100px; max-height: 100px;" />`;
-
-
       photoUrlCell.innerHTML = '';
       if (item.photo_url && item.photo_url.length > 0) {
         item.photo_url.forEach((photo, index) => {
@@ -103,7 +100,7 @@
           inputElement.addEventListener('change', function() {
             console.log('file input changed');
             handlePhotoChange(this, item, index);
-           // enableSaveButtonForImage(this); // Добавляем вызов enableSaveButton
+            enableSaveButtonForImage(this); // Добавляем вызов enableSaveButton
           });
 
           const buttonElement = document.createElement('button');
@@ -132,28 +129,83 @@
           inputElement.click();
         };
 
-        inputElement.addEventListener('change', function() {
-          console.log('file input changed');
-          handlePhotoAdd(this, item); // Предполагается, что у handlePhotoChange есть параметр для индекса, но поскольку это новая фотография, индекс равен 0
+
+        const imagesContainer = document.createElement('div');
+        photoUrlCell.appendChild(imagesContainer);
+
+        inputElement.addEventListener('change', function(event) {
+          const imgElement = document.createElement('img');
+          imgElement.style.maxWidth = '100px';
+          imgElement.style.maxHeight = '100px';
+          // Создаем новый FileReader
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            // Устанавливаем data URL как src imgElement
+            imgElement.src = event.target.result;
+          };
+          // Читаем файл как data URL
+          if (this.files[0]) reader.readAsDataURL(this.files[0]);
+          imagesContainer.appendChild(imgElement); // Добавление картинки в контейнер
+          handlePhotoAdd(this, item);
         });
-        const imgElement = document.createElement('img');
-
-        imgElement.style.maxWidth = '100px';
-        imgElement.style.maxHeight = '100px';
-
+        //с добавлением кнопки. но что делать с индексом
+        // inputElement.addEventListener('change', function(event) {
+        //   const imgElement = document.createElement('img');
+        //   imgElement.style.maxWidth = '100px';
+        //   imgElement.style.maxHeight = '100px';
+        //
+        //   // Создаем новый FileReader
+        //   const reader = new FileReader();
+        //
+        //   reader.onload = function (event) {
+        //     // Устанавливаем data URL как src imgElement
+        //     imgElement.src = event.target.result;
+        //
+        //     // Создаем новую кнопку "Изменить фото" для каждого нового изображения
+        //     const editButton = document.createElement('button');
+        //     editButton.textContent = 'Изменить фото';
+        //
+        //     const newFileInput = document.createElement('input');
+        //     newFileInput.type = 'file';
+        //     newFileInput.accept = 'image/*';
+        //     newFileInput.style.visibility = 'hidden';
+        //
+        //     editButton.onclick = function() {
+        //       newFileInput.click();
+        //     };
+        //
+        //     newFileInput.addEventListener('change', function() {
+        //       console.log('file input changed');
+        //       handlePhotoChange(this, item, index);
+        //       // enableSaveButtonForImage(this); // Добавляем вызов enableSaveButton
+        //     });
+        //
+        //     const newDiv = document.createElement('div');
+        //     newDiv.appendChild(imgElement);
+        //     newDiv.appendChild(newFileInput);
+        //     newDiv.appendChild(editButton);
+        //
+        //     imagesContainer.appendChild(newDiv); // Добавление картинки и кнопки в контейнер
+        //   };
+        //
+        //   // Читаем файл как data URL
+        //   if (this.files[0]) reader.readAsDataURL(this.files[0]);
+        //
+        //   handlePhotoAdd(this, item);
+        // });
         div.appendChild(inputElement);
         div.appendChild(buttonElement);
         photoUrlCell.appendChild(div);
 
       }
 
-      // photoUrlCell.innerHTML = `<input type='text' value='${item.photo_url}' oninput='enableSaveButton(this)'/>`;
+
       priceCell.innerHTML = `<input type='text' value='${item.price}' oninput='enableSaveButton(this)'/>`;
       lengthCell.innerHTML = `<input type='text' value='${item.length}' oninput='enableSaveButton(this)'/>`;
       widthCell.innerHTML = `<input type='text' value='${item.width}' oninput='enableSaveButton(this)'/>`;
       heightCell.innerHTML = `<input type='text' value='${item.height}' oninput='enableSaveButton(this)'/>`;
       weightCell.innerHTML = `<input type='text' value='${item.weight}' oninput='enableSaveButton(this)'/>`;
-//value='${item.catalog} тут как в json
+
       //Добавляем поля name, descrip
       const nameContentEditable = document.createElement('div');
       const descriptionContentEditable = document.createElement('div');
@@ -184,6 +236,43 @@
       saveButton.disabled = true;
       actionCell.appendChild(saveButton);
     });
+  }
+  function createPhotoElement(parent, buttonText, item, index) {
+    const div = document.createElement('div');
+
+    const imgElement = document.createElement('img');
+    imgElement.alt = 'Image';
+    imgElement.style.maxWidth = '100px';
+    imgElement.style.maxHeight = '100px';
+
+    const inputElement = document.createElement('input');
+    inputElement.type = 'file';
+    inputElement.accept = 'image/*';
+    inputElement.style.visibility = 'hidden';
+
+    const buttonElement = document.createElement('button');
+    buttonElement.textContent = buttonText;
+    buttonElement.onclick = function() {
+      inputElement.click();
+    };
+
+    if (typeof index !== 'undefined') { // existing photo
+      imgElement.src = `data:image/jpeg;base64, ${item.photo_url[index]}`;
+      inputElement.addEventListener('change', function() {
+        console.log('file input changed');
+        handlePhotoChange(this, item, index);
+      });
+    } else { // new photo
+      inputElement.addEventListener('change', function() {
+        console.log('file input changed');
+        handlePhotoAdd(this, item);
+      });
+    }
+
+    div.appendChild(imgElement);
+    div.appendChild(inputElement);
+    div.appendChild(buttonElement);
+    parent.appendChild(div);
   }
   function enableSaveButton(input) {
     const row = input.parentNode.parentNode;
@@ -224,7 +313,8 @@
       console.log('item.photo_url = ', item.photo_url)
 
       input.parentElement.querySelector("button").disabled = false;
-      input.previousSibling.src = newPhotoUrl;
+     // input.previousSibling.src = newPhotoUrl;
+      input.parentElement.querySelector('img').src = newPhotoUrl;
     };
 
     reader.onerror = function(e) {
