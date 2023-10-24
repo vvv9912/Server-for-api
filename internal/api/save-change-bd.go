@@ -103,7 +103,7 @@ func (s *PostDB) PostChangeBD(c echo.Context) error {
 		return err
 	}
 	photosBytes := make([][]byte, 0)
-	for _, product := range a {
+	for i, product := range a {
 		for _, base64Img := range product.PhotoUrl {
 			prefix := "data:image/jpeg;base64,"
 			encodedString := strings.TrimPrefix(base64Img, prefix)
@@ -111,22 +111,23 @@ func (s *PostDB) PostChangeBD(c echo.Context) error {
 			photosBytes = append(photosBytes, data)
 			// Теперь `data` содержит байтовый массив изображения
 		}
-	}
-	err = s.Storage.ChangeProductByArticle(context.TODO(), model.Products{
-		Article:     a[0].Article,
-		Catalog:     a[0].Catalog,
-		Name:        a[0].Name,
-		Description: a[0].Description,
-		PhotoUrl:    photosBytes,
-		Price:       a[0].Price,
-		Length:      a[0].Length,
-		Width:       a[0].Width,
-		Height:      a[0].Height,
-		Weight:      a[0].Weight,
-	})
-	if err != nil {
-		fmt.Println(err)
-		return err
+
+		err = s.Storage.ChangeProductByArticle(context.TODO(), model.Products{
+			Article:     a[i].Article,
+			Catalog:     a[i].Catalog,
+			Name:        a[i].Name,
+			Description: a[i].Description,
+			PhotoUrl:    photosBytes,
+			Price:       a[i].Price,
+			Length:      a[i].Length,
+			Width:       a[i].Width,
+			Height:      a[i].Height,
+			Weight:      a[i].Weight,
+		})
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 	}
 	//if err := c.Bind(exampleRequest); err != nil {
 	//	fmt.Println(err)

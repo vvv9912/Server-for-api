@@ -9,7 +9,7 @@ type Products struct {
 	Catalog     string   `json:"catalog,omitempty"`
 	Name        string   `json:"name,omitempty"`
 	Description string   `json:"description,omitempty"`
-	PhotoUrl    [][]byte `json:"photo_url,omitempty"`
+	PhotoUrl    [][]byte `json:"photo_url"`
 	Price       float64  `json:"price,omitempty"`
 	Length      int      `json:"length"`
 	Width       int      `json:"width"`
