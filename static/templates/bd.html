@@ -96,7 +96,22 @@
           const div = document.createElement('div');
           div.appendChild(imgElement);
           div.appendChild(inputElement);
+// Создание кнопки "Удалить фото"
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Удалить фото';
+          deleteButton.style.display = 'block';
 
+          deleteButton.onclick = function() {
+            enableSaveButtonForImage(this); // Добавляем вызов enableSaveButton
+            // Удаление фото из массива item.photo_url
+            item.photo_url.splice(index, 1);
+
+            // Удаление дива из photoUrlCell
+            photoUrlCell.removeChild(div);
+
+          };
+          div.appendChild(deleteButton);
+          ///
           inputElement.addEventListener('change', function() {
             console.log('file input changed');
             handlePhotoChange(this, item, index);
@@ -147,6 +162,7 @@
           if (this.files[0]) reader.readAsDataURL(this.files[0]);
           imagesContainer.appendChild(imgElement); // Добавление картинки в контейнер
           handlePhotoAdd(this, item);
+          enableSaveButtonForImage(this); // Добавляем вызов enableSaveButton
         });
         //с добавлением кнопки. но что делать с индексом
         // inputElement.addEventListener('change', function(event) {
