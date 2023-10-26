@@ -2,18 +2,20 @@
 /*#parentElement {*/
 /*    */
 /*}*/
+
+button {
+    font-size: 16px; /* Изменяет размер текста */
+    width: 600px; /* Изменяет ширину кнопки */
+    height: 150px; /* Изменяет высоту кнопки */
+}
 #editableTable td {
     color: #ffffff;
 }
 #editableTable tr {
     color: #ffffff;
 }
-/*#page-container {*/
-/*    height: 100%; !* Задайте высоту контейнера, чтобы он занимал всю доступную высоту экрана *!*/
-/*    overflow-y: scroll; !* Разрешите вертикальную прокрутку *!*/
-/*    !* Другие стили по вашему выбору *!*/
-/*}*/
-#tableContainer{
+
+#tableContainer {
     height: auto;
     width: auto;
     overflow: auto;
@@ -21,18 +23,16 @@
 
 #editableTable {
     overflow-y: scroll;
-    height: 400px; /* Укажите желаемую высоту контейнера для прокрутки */
-    max-height: 400px; /* Максимальная высота таблицы перед появлением вертикальной прокрутки */
-    overflow-y: scroll; /* Разрешите вертикальную прокрутку таблицы */
+    height: 100%; /* Весь контейнер будет использован для таблицы */
     /* Другие стили по вашему выбору */
 }
 
-html { width: 100%; height:100%; overflow:hidden; }
+/*html { width: 100%; height:100%; overflow:hidden; }*/
 
 body {
     overflow-y: scroll;
     width: 100%;
-    height:100%;
+    height: 100%;
     font-family: 'Open Sans', sans-serif;
     background: #092756;
     background: -moz-radial-gradient(0% 100%, ellipse cover, rgba(104,128,138,.4) 10%,rgba(138,114,76,0) 40%),
