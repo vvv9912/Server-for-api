@@ -624,11 +624,24 @@
   function saveChanges() {
     console.log("mod = ", modifiedRows)
     console.log("new = ", NewRows)
-    if (modifiedRows.size != 0) {
-      saveChangesData();
+    let result
+    if (modifiedRows.size !== 0) {
+      result = saveChangesData();
+      if (result != 1) {
+        console.log("Ошибка при изменении данных");
+      }
     }
-    if (NewRows.size != 0){
-      saveNewData();
+    if (NewRows.size !== 0){
+      result = saveNewData();
+      if (result !== 1) {
+        console.log("Ошибка при сохранении новых данных");
+      }
+    }
+    if (result !== 1) {
+      console.log("Ошибка при сохранении данных");
+      alert("Ошибка при изменении данных");
+    }  else {
+      alert("Новые данные успешно сохранены");
     }
   }
   function saveChangesData() {
@@ -671,10 +684,14 @@
               console.log('Изменения сохранены успешно.');
               modifiedRows.clear();
             })
-            .catch(error => console.error('Ошибка при отправке данных на сервер:', error));
+            .catch(error => {
+              console.error('Ошибка при отправке данных на сервер:', error);
+              return 0; // Возвращаем 0 в случае ошибки
+            });
    // modifiedRows.delete(row);
     modifiedRows.clear();
     deactivateSaveButton();
+    return 1
   }
   function saveNewData() {
 
@@ -716,10 +733,14 @@
               console.log('Изменения сохранены успешно.');
               modifiedRows.clear();
             })
-            .catch(error => console.error('Ошибка при отправке данных на сервер:', error));
+            .catch(error => {
+              console.error('Ошибка при отправке данных на сервер:', error);
+              return 0; // Возвращаем 0 в случае ошибки
+            });
     // modifiedRows.delete(row);
     NewRows.clear();
     deactivateSaveButton();
+    return 1
   }
   // При загрузке страницы вызываем функцию для загрузки данных
   fetchData();
