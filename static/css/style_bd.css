@@ -8,6 +8,34 @@
 /*    width: 600px; !* Изменяет ширину кнопки *!*/
 /*    height: 150px; !* Изменяет высоту кнопки *!*/
 /*}*/
+/**/
+.same-size-button {
+    width: 200px;
+    height: 45px;
+    background-color: #4CAF50; /* выберите цвет фона */
+    color: white; /* выберите цвет текста */
+    border: 1px solid #000000; /* добавьте окантовку: ширину, стиль и цвет */
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.same-size-button:hover {
+    background-color: #1c421d; /* выберите цвет фона при наведении */
+}
+
+.same-size-button:active {
+    background-color: #1e481f; /* выберите цвет фона при активации */
+}
+.same-size-button:disabled {
+    background-color: #7f8c8d; /* #ff0005 выберите цвет заднего фона, когда кнопка неактивна */
+    color: #ecf0f1; /* выберите цвет текста, когда кнопка неактивна */
+}
+/*//*/
 #editableTable td {
     color: #ffffff;
 }

@@ -25,18 +25,24 @@
   <!-- Здесь будут отображаться данные из GET-запроса -->
   </tbody>
 </table>
-
-  <button id ="AddRowButton" onclick="addRow()">Новая запись</button>
-  <button id="saveButton" onclick="saveChanges()">Сохранить изменения в бд</button>
+  <div style="display: flex; align-items: center;">
+  <button class="same-size-button" id ="AddRowButton" onclick="addRow()">Новая запись</button>
+  <button class="same-size-button" id="saveButton" onclick="saveChanges()">Сохранить изменения в <br> базу данных</button>
+  </div>
+  <div style="clear:both;">
+  <button class="same-size-button" id="downloadDBButton" onclick="downloadDBButton()">Скачать базу данных</button>
+  </div>
 </div>
 
 <script>
   const saveButton = document.getElementById("saveButton");
   const AddRowButton = document.getElementById("AddRowButton");
-
+  const downloadDBButton = document.getElementById("downloadDBButton");
+  //
   let data = []; // Массив для хранения данных
   let modifiedRows = new Set(); // Множество измененных строк
   let NewRows = new Set(); // Множество новый строк
+  //
   function deactivateAddRowButton() {
     AddRowButton.disabled = true;
   }
@@ -49,7 +55,9 @@
   function activateSaveButton() {
     saveButton.disabled = false;
   }
+  //
   deactivateSaveButton()
+  //
   function fetchData() {
     fetch('/api/get-data-db')
             .then(response => response.json())
@@ -288,6 +296,7 @@
       actionCell.appendChild(saveButton);
     });
   }
+  //
   function deletePhoto(src, buttonElement, item) {
     // Удаляем URL изображения из массива item.photo_url
     const index = item.photo_url.indexOf(src);
@@ -299,43 +308,7 @@
     const parentDiv = buttonElement.parentNode;
     parentDiv.parentNode.removeChild(parentDiv);
   }
-  function createPhotoElement(parent, buttonText, item, index) {
-    const div = document.createElement('div');
-
-    const imgElement = document.createElement('img');
-    imgElement.alt = 'Image';
-    imgElement.style.maxWidth = '100px';
-    imgElement.style.maxHeight = '100px';
-
-    const inputElement = document.createElement('input');
-    inputElement.type = 'file';
-    inputElement.accept = 'image/*';
-    inputElement.style.visibility = 'hidden';
-
-    const buttonElement = document.createElement('button');
-    buttonElement.textContent = buttonText;
-    buttonElement.onclick = function() {
-      inputElement.click();
-    };
-
-    if (typeof index !== 'undefined') { // existing photo
-      imgElement.src = `data:image/jpeg;base64, ${item.photo_url[index]}`;
-      inputElement.addEventListener('change', function() {
-        console.log('file input changed');
-        handlePhotoChange(this, item, index);
-      });
-    } else { // new photo
-      inputElement.addEventListener('change', function() {
-        console.log('file input changed');
-        handlePhotoAdd(this, item);
-      });
-    }
-
-    div.appendChild(imgElement);
-    div.appendChild(inputElement);
-    div.appendChild(buttonElement);
-    parent.appendChild(div);
-  }
+  //
   function enableSaveButton(input) {
     const row = input.parentNode.parentNode;
     modifiedRows.add(row); // Добавить строку в множество измененных строк
@@ -368,6 +341,7 @@
     saveButton.disabled = false;
     activateSaveButton()
   }
+  //
   function handlePhotoAdd(input, item) {
     const file = input.files[0];
     const reader = new FileReader();
@@ -425,8 +399,7 @@
     reader.readAsDataURL(file);
   }
 
-
-
+  //
   function saveRow(button) {
     const row = button.parentNode.parentNode;
     console.log(row)
@@ -508,7 +481,7 @@
     activateAddRowButton()
   }
 
-
+  //
   function addRow() {
 
     const table = document.getElementById('editableTable').getElementsByTagName('tbody')[0];
@@ -561,7 +534,6 @@
     heightCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
     weightCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
 
-// // // // //
     const item = {photo_url: []};
 
     const div = document.createElement('div');
@@ -620,7 +592,7 @@
     actionCell.innerHTML = "<button onclick='saveRowNew(this)'>Сохранить</button>";
     deactivateAddRowButton()
   }
-
+  // Сохранение в бд
   function saveChanges() {
     console.log("mod = ", modifiedRows)
     console.log("new = ", NewRows)
@@ -688,7 +660,7 @@
               console.error('Ошибка при отправке данных на сервер:', error);
               return 0; // Возвращаем 0 в случае ошибки
             });
-   // modifiedRows.delete(row);
+
     deactivateSaveButton();
     return 1
   }

@@ -47,7 +47,7 @@
                 .done(function(data) {
                     if (data.success) {
                         $("#form-result").text(JSON.stringify(data, null, 2));
-                        window.location.href = "https://example.com/next-url";
+                        window.location.href = "/bd";
                     } else {
                         $("#form-result").text(data.success);
                     }
