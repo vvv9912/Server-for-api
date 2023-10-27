@@ -2,6 +2,8 @@ package storage
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"serverBot2/internal/model"
@@ -50,7 +52,7 @@ func (s *ProductsPostgresStorage) ChangeProductByArticle(ctx context.Context, pr
 	}
 	defer conn.Close()
 
-	if _, err := conn.ExecContext(
+	result, err := conn.ExecContext(
 		ctx,
 		`UPDATE products SET catalog = $2, name = $3, description = $4, photo_url = $5, price = $6, length = $7, width = $8, heigth = $9, weight = $10
 	    				WHERE article = $1`,
@@ -65,10 +67,19 @@ func (s *ProductsPostgresStorage) ChangeProductByArticle(ctx context.Context, pr
 		product.Height,
 		product.Weight,
 		//users.CreatedAt,
-	); err != nil {
+	)
+	if err != nil {
+		fmt.Println(err)
 		return err
 	}
-
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("no rows updated, article not found")
+	}
 	return nil
 }
 func (s *ProductsPostgresStorage) Catalog(ctx context.Context) ([]string, error) {

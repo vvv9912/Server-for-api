@@ -32,7 +32,7 @@ type ProductsGet struct {
 	Weight      int      `json:"weight"`
 }
 
-func (s *PostDB) PostSaveAddBD(c echo.Context) error {
+func (s *PostDB) PostNewAddBD(c echo.Context) error {
 
 	body, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
@@ -42,8 +42,7 @@ func (s *PostDB) PostSaveAddBD(c echo.Context) error {
 	bodyString := string(body)
 	_ = bodyString
 	//fmt.Println(bodyString)
-	exampleRequest := new([]model.Products)
-	//var a []model.Products
+
 	var a []ProductsGet
 	err = json.Unmarshal(body, &a)
 	if err != nil {
@@ -51,7 +50,7 @@ func (s *PostDB) PostSaveAddBD(c echo.Context) error {
 		return err
 	}
 	photosBytes := make([][]byte, 0)
-	for _, product := range a {
+	for i, product := range a {
 		for _, base64Img := range product.PhotoUrl {
 			prefix := "data:image/jpeg;base64,"
 			encodedString := strings.TrimPrefix(base64Img, prefix)
@@ -59,30 +58,34 @@ func (s *PostDB) PostSaveAddBD(c echo.Context) error {
 			photosBytes = append(photosBytes, data)
 			// Теперь `data` содержит байтовый массив изображения
 		}
+
+		err = s.Storage.AddProduct(context.TODO(), model.Products{
+			Article:     a[i].Article,
+			Catalog:     a[i].Catalog,
+			Name:        a[i].Name,
+			Description: a[i].Description,
+			PhotoUrl:    photosBytes,
+			Price:       a[i].Price,
+			Length:      a[i].Length,
+			Width:       a[i].Width,
+			Height:      a[i].Height,
+			Weight:      a[i].Weight,
+		})
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 	}
-	s.Storage.AddProduct(context.TODO(), model.Products{
-		Article:     16,
-		Catalog:     a[0].Catalog,
-		Name:        a[0].Name,
-		Description: a[0].Description,
-		PhotoUrl:    photosBytes,
-		Price:       a[0].Price,
-		Length:      a[0].Length,
-		Width:       a[0].Width,
-		Height:      a[0].Height,
-		Weight:      a[0].Weight,
-	})
-	if err := c.Bind(exampleRequest); err != nil {
-		fmt.Println(err)
-		return err
-	}
-	fmt.Println(exampleRequest)
+	//if err := c.Bind(exampleRequest); err != nil {
+	//	fmt.Println(err)
+	//	return err
+	//}
+	//fmt.Println(exampleRequest)
 
 	return c.JSONBlob(
 		http.StatusOK,
 		[]byte(""),
 	)
-
 }
 
 func (s *PostDB) PostChangeBD(c echo.Context) error {

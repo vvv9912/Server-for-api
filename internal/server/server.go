@@ -54,7 +54,8 @@ func NewServer(storager api.Storager, storagerr api.PostStorager) *Server {
 	s.echo.GET("/api/get-data", api.GetData)
 
 	post := api.PostDB{Storage: storagerr}
-	s.echo.POST("/api/save-change-bd", post.PostChangeBD)
+	s.echo.POST("/api/save-change-bd/change", post.PostChangeBD)
+	s.echo.POST("/api/save-change-bd/add", post.PostNewAddBD)
 	return s
 }
 

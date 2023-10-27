@@ -26,16 +26,31 @@
   </tbody>
 </table>
 
-<button onclick="addRow()">Новая запись</button>
-<button onclick="saveChanges()">Сохранить изменения в бд</button>
+  <button id ="AddRowButton" onclick="addRow()">Новая запись</button>
+  <button id="saveButton" onclick="saveChanges()">Сохранить изменения в бд</button>
 </div>
 
 <script>
+  const saveButton = document.getElementById("saveButton");
+  const AddRowButton = document.getElementById("AddRowButton");
+
   let data = []; // Массив для хранения данных
   let modifiedRows = new Set(); // Множество измененных строк
-
+  let NewRows = new Set(); // Множество новый строк
+  function deactivateAddRowButton() {
+    AddRowButton.disabled = true;
+  }
+  function activateAddRowButton() {
+    AddRowButton.disabled = false;
+  }
+  function deactivateSaveButton() {
+    saveButton.disabled = true;
+  }
+  function activateSaveButton() {
+    saveButton.disabled = false;
+  }
+  deactivateSaveButton()
   function fetchData() {
-    // Выполнить GET-запрос для получения данных
     fetch('/api/get-data-db')
             .then(response => response.json())
             .then(jsonData => {
@@ -327,13 +342,15 @@
     const saveButtonCell = row.cells[10];
     const saveButton = saveButtonCell.querySelector('button');
     saveButton.disabled = false;
+    activateSaveButton()
   }
   function enableSaveButtonNewRow(input) {
     const row = input.parentNode.parentNode;
-    modifiedRows.add(row); // Добавить строку в множество измененных строк
+    NewRows.add(row); // Добавить строку в множество измененных строк
     const saveButtonCell = row.cells[10];
     const saveButton = saveButtonCell.querySelector('button');
     saveButton.disabled = false;
+    activateSaveButton()
   }
   function enableSaveButtonForImage(input) {
     const row = input.parentNode.parentNode.parentNode;
@@ -341,6 +358,15 @@
     const saveButtonCell = row.cells[10];
     const saveButton = saveButtonCell.querySelector('button');
     saveButton.disabled = false;
+    activateSaveButton()
+  }
+  function enableSaveButtonForImageNewRow(input) {
+    const row = input.parentNode.parentNode.parentNode;
+    NewRows.add(row); // Добавить строку в множество измененных строк
+    const saveButtonCell = row.cells[10];
+    const saveButton = saveButtonCell.querySelector('button');
+    saveButton.disabled = false;
+    activateSaveButton()
   }
   function handlePhotoAdd(input, item) {
     const file = input.files[0];
@@ -441,31 +467,50 @@
     button.disabled = true;
     console.log('Данные, модицифированные', modifiedRows);
   }
-  function saveRow2(button) {
-    const row = button.parentNode.parentNode;
-    //const id = row.cells[0].getElementsByTagName('input')[0].value;
-    const id = row.cells[0].innerHTML;
-    const email = row.cells[1].getElementsByTagName('input')[0].value;
-    const password = row.cells[2].getElementsByTagName('input')[0].value;
 
-    // Обновить данные в массиве data
-    const recordIndex = parseInt(id) - 1;
+
+  function saveRowNew(button) {
+    const row = button.parentNode.parentNode;
+    const articleCell = row.cells[0].innerHTML;
+    // const id = row.cells[0].getElementsByTagName('input')[0].value;
+    const catalogCell = row.cells[1].getElementsByTagName('input')[0].value;
+    const nameCell = row.cells[2].innerText;
+    const descriptionCell = row.cells[3].innerText;
+    //photo
+    const photoCell = row.cells[4].getElementsByTagName('img');
+    let photos = [];
+    for(let i = 0; i < photoCell.length; i++){
+      photos.push(photoCell[i].src); // собираем все URL-ы картинок в массив
+    }
+    //
+    const priceCell = row.cells[5].getElementsByTagName('input')[0].value;
+    const lengthCell = row.cells[6].getElementsByTagName('input')[0].value;
+    const widthCell = row.cells[7].getElementsByTagName('input')[0].value;
+    const heightCell = row.cells[8].getElementsByTagName('input')[0].value;
+    const weightCell = row.cells[9].getElementsByTagName('input')[0].value;
+
+   // const recordIndex = parseInt(articleCell) - 1;
     const newItem = {
-      email: email,
-      password: password,
+      article: articleCell,
+      catalog: catalogCell,
+      name: nameCell,
+      description: descriptionCell,
+      photo: photos,
+      price: priceCell,
+      length: lengthCell,
+      width: widthCell,
+      height: heightCell,
+      weight: weightCell,
     };
     data.push(newItem);
-    //modi
-    // data[recordIndex].email = email;
-    // data[recordIndex].password = password;
-
-    // Удалить строку из множества измененных строк
-    //  modifiedRows.delete(row);
-    // Отключить кнопку "Сохранить" после сохранения изменений
     button.disabled = true;
     console.log('Данные, модицифированные', modifiedRows);
+    activateAddRowButton()
   }
+
+
   function addRow() {
+
     const table = document.getElementById('editableTable').getElementsByTagName('tbody')[0];
     const newRow = table.insertRow(table.rows.length);
     const articleCell = newRow.insertCell(0);
@@ -479,19 +524,115 @@
     const heightCell  = newRow.insertCell(8);
     const weightCell  = newRow.insertCell(9);
     const actionCell = newRow.insertCell(10);
-    const len = data.length
+    console.log("data", data)
+    const len = data.length+1
+
     articleCell.innerHTML = (len).toString();// Можно оставить пустым или сгенерировать уникальный ID
     // idCell.innerHTML = '4'; // Можно оставить пустым или сгенерировать уникальный ID
     // idCell.innerHTML = "<input type='text' />"; // Редактируем ID
     catalogCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
 
+    const nameContentEditable = document.createElement('div');
+    const descriptionContentEditable = document.createElement('div');
+    nameContentEditable.setAttribute('contenteditable', true);
+    descriptionContentEditable.setAttribute('contenteditable', true);
+    // Add data
+    nameContentEditable.textContent = "";
+    descriptionContentEditable.textContent = "";
+
+    nameContentEditable.addEventListener('input', function() {
+      enableSaveButtonNewRow(this);
+    });
+
+    descriptionContentEditable.addEventListener('input', function() {
+      enableSaveButtonNewRow(this);
+    });
+
+    // Set their outer HTML as innerHTML of the cells
+    nameCell.appendChild(nameContentEditable);
+    descriptionCell.appendChild(descriptionContentEditable);
 
 
-    emailCell.innerHTML = "<input type='text' />";
-    passwordCell.innerHTML = "<input type='text' />";
-    actionCell.innerHTML = "<button onclick='saveRow2(this)'>Сохранить</button>";
+    //descriptionCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
+
+    priceCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
+    lengthCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
+    widthCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
+    heightCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
+    weightCell.innerHTML = `<input type='text' oninput='enableSaveButtonNewRow(this)'/>`;
+
+// // // // //
+    const item = {photo_url: []};
+
+    const div = document.createElement('div');
+    const inputElement = document.createElement('input');
+    const buttonElementAdd = document.createElement('button');
+
+    //
+    inputElement.type = 'file';
+    inputElement.accept = 'image/*';
+    inputElement.style.visibility = 'hidden';
+
+    buttonElementAdd.textContent = 'Добавить фото';
+    buttonElementAdd.onclick = function() {
+      inputElement.click();
+    };
+
+    const imagesContainer = document.createElement('div');
+    photoUrlCell.appendChild(imagesContainer);
+
+    inputElement.addEventListener('change', function(event) {
+      const imgElement = document.createElement('img');
+      imgElement.style.maxWidth = '100px';
+      imgElement.style.maxHeight = '100px';
+
+      // Создаем новый FileReader
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        // Устанавливаем data URL как src imgElement
+        imgElement.src = event.target.result;
+
+        // Создаем кнопку "Удалить фото"
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Удалить фото';
+        deleteButton.onclick = function() {
+          deletePhoto(imgElement.src, this, item);
+        };
+
+        const newDiv = document.createElement('div');
+        newDiv.appendChild(imgElement);
+        newDiv.appendChild(deleteButton);
+        imagesContainer.appendChild(newDiv); // Добавление картинки в контейнер
+      };
+
+      // Читаем файл как data URL
+      if (this.files[0]) reader.readAsDataURL(this.files[0]);
+      handlePhotoAdd(this, item);
+      enableSaveButtonForImageNewRow(this);
+
+    });
+
+    div.appendChild(inputElement);
+    div.appendChild(buttonElementAdd);
+    photoUrlCell.appendChild(div);
+    //
+
+    actionCell.innerHTML = "<button onclick='saveRowNew(this)'>Сохранить</button>";
+    deactivateAddRowButton()
   }
+
   function saveChanges() {
+    console.log("mod = ", modifiedRows)
+    console.log("new = ", NewRows)
+    if (modifiedRows.size != 0) {
+      saveChangesData();
+    }
+    if (NewRows.size != 0){
+      saveNewData();
+    }
+  }
+  function saveChangesData() {
+
     console.log('модифицированные данные:', modifiedRows)
     const changedData = Array.from(modifiedRows).map(row => {
       console.log(row);
@@ -515,10 +656,10 @@
       return { article, catalog, name, description, photo_url,price,length,width,height,weight};
     });
     // Вывести данные в консоль
-    console.log('Данные, отправляемые в POST-запросе:', changedData);
+    console.log('Данные модифиц, отправляемые в POST-запросе:', changedData);
 
     // Выполнить POST-запрос только с измененными данными
-    fetch('/api/save-change-bd', {
+    fetch('/api/save-change-bd/change', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -528,9 +669,57 @@
             .then(response => {
               // Обработка ответа от сервера (если необходимо)
               console.log('Изменения сохранены успешно.');
+              modifiedRows.clear();
             })
             .catch(error => console.error('Ошибка при отправке данных на сервер:', error));
-    modifiedRows.delete(row);
+   // modifiedRows.delete(row);
+    modifiedRows.clear();
+    deactivateSaveButton();
+  }
+  function saveNewData() {
+
+    console.log('Новые данные:', NewRows)
+    const changedData = Array.from(NewRows).map(row => {
+      console.log(row);
+      const article = parseInt(row.cells[0].innerHTML);
+      const catalog = row.cells[1].getElementsByTagName('input')[0].value;
+      const name = row.cells[2].innerText;
+      const description = row.cells[3].innerText;
+      const photoCell = row.cells[4].getElementsByTagName('img');
+      let photo_url = [];
+      for(let i = 0; i < photoCell.length; i++){
+        photo_url.push(photoCell[i].src); // собираем все URL-ы картинок в массив
+      }
+
+      //
+      const price = parseFloat(row.cells[5].getElementsByTagName('input')[0].value);
+      const length = parseInt(row.cells[6].getElementsByTagName('input')[0].value);
+      const width = parseInt(row.cells[7].getElementsByTagName('input')[0].value);
+      const height = parseInt(row.cells[8].getElementsByTagName('input')[0].value);
+      const weight = parseInt(row.cells[9].getElementsByTagName('input')[0].value);
+
+      return { article, catalog, name, description, photo_url,price,length,width,height,weight};
+    });
+    // Вывести данные в консоль
+    console.log('Данные новые, отправляемые в POST-запросе:', changedData);
+
+    // Выполнить POST-запрос только с измененными данными
+    fetch('/api/save-change-bd/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(changedData)
+    })
+            .then(response => {
+              // Обработка ответа от сервера (если необходимо)
+              console.log('Изменения сохранены успешно.');
+              modifiedRows.clear();
+            })
+            .catch(error => console.error('Ошибка при отправке данных на сервер:', error));
+    // modifiedRows.delete(row);
+    NewRows.clear();
+    deactivateSaveButton();
   }
   // При загрузке страницы вызываем функцию для загрузки данных
   fetchData();
