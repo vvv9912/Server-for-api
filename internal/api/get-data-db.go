@@ -33,6 +33,10 @@ func (s GetDB) GetDataDb(c echo.Context) error {
 		fmt.Println(err)
 		return err
 	}
+	//f, _ := os.Create("output.json")
+	//defer f.Close()
+	//as_json, _ := json.MarshalIndent(products, "", "\t")
+	//f.Write(as_json)
 	//fmt.Println(products)
 	byteArr := []byte(msg)
 	return c.JSONBlob(http.StatusOK, byteArr)

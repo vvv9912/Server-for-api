@@ -48,11 +48,12 @@ func NewServer(storager api.Storager, storagerr api.PostStorager) *Server {
 	s.echo.GET("/auth2", handler.AuthHandler2)
 	s.echo.GET("/auth3", handler.AuthHandler3)
 	s.echo.GET("/bd", handler.BdHandler)
+	s.echo.GET("", handler.Hand)
 
 	s.echo.POST("/api/post-auth", api.PostAuth)
 	s.echo.GET("/api/get-data-db", get.GetDataDb)
 	s.echo.GET("/api/get-data", api.GetData)
-
+	s.echo.GET("/api/get-file-bd", get.GetDownloadDB)
 	post := api.PostDB{Storage: storagerr}
 	s.echo.POST("/api/save-change-bd/change", post.PostChangeBD) //добавить авторизацию
 	s.echo.POST("/api/save-change-bd/add", post.PostNewAddBD)

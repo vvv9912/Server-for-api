@@ -30,7 +30,7 @@
   <button class="same-size-button" id="saveButton" onclick="saveChanges()">Сохранить изменения в <br> базу данных</button>
   </div>
   <div style="clear:both;">
-  <button class="same-size-button" id="downloadDBButton" onclick="downloadDBButton()">Скачать базу данных</button>
+  <button class="same-size-button" id="downloadDBButton" onclick="downloadDBZip()">Скачать базу данных</button>
   </div>
 </div>
 
@@ -712,6 +712,28 @@
     deactivateSaveButton();
     return 1
   }
+
+ function downloadDBZip() {
+   fetch('/api/get-file-bd')
+           .then(response => {
+             if (response.ok) {
+               return response.blob(); // Получить содержимое архива как Blob
+             } else {
+               throw new Error('Ошибка при загрузке архива');
+             }
+           })
+           .then(blob => {
+             const url = window.URL.createObjectURL(blob);
+             const a = document.createElement('a');
+             a.href = url;
+             a.download = 'bd.zip'; // Установите имя файла для скачивания
+             document.body.appendChild(a);
+             a.click();
+             window.URL.revokeObjectURL(url);
+           })
+           .catch(error => console.error('Ошибка при загрузке архива:', error));
+ }
+
   // При загрузке страницы вызываем функцию для загрузки данных
   fetchData();
 </script>

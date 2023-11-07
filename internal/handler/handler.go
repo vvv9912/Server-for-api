@@ -42,3 +42,8 @@ func BdHandler(c echo.Context) error {
 	fmt.Println(err)
 	return err
 }
+func Hand(c echo.Context) error {
+	msg := "ok"
+	byteArr := []byte(msg)
+	return c.JSONBlob(http.StatusOK, byteArr)
+}
